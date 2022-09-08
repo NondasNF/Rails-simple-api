@@ -1,5 +1,6 @@
   class Api::V1::AlbumsController < ApplicationController
-    
+    before_action :set_album, only: [:show, :update, :destroy]
+
     def index
       @albums = Album.all
       render :json => @albums
@@ -10,24 +11,28 @@
     end
 
     def create
+      @album = Album.new(album_params)
       if @album.save
-        render :json => @album, :status => :created, :location => @album
+        render :json => @album, :status => :created
       else
         render :json => @album.errors, status: :unprocessable_entity
       end
     end
 
     def update
-      if @album.update_attributes(params[:album])
-        head :no_content
+      if @album.update(album_params)
+        render :json => @album, :status => :ok
       else
         render :json => @album.errors, status: :unprocessable_entity
       end
     end
 
     def destroy
-      @album.destroy
-      head :no_content
+      if @album.destroy
+        render :json => @album, :status => :ok
+      else
+        render :json => @album.errors, status: :unprocessable_entity
+      end
     end
 
     private
